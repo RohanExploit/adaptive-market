@@ -7,6 +7,13 @@ A self-evolving competitive-intelligence agent. It uses [Vectorize Hindsight](ht
 2. **Ingest history:** 3 months of competitor signals are retained and consolidated into observations.
 3. **Adapted:** the same question now yields an SLA/support-focused battlecard, a hold-price "Starter Annual" tier and a re-ranked roadmap (SOC2 → P0), with TEMPR scores shown.
 
+## Screenshots
+| 1. Stateless | 2. After ingest | 3. Memory-adapted |
+| --- | --- | --- |
+| ![](docs/demo/1-stateless.png) | ![](docs/demo/2-ingested.png) | ![](docs/demo/3-adapted.png) |
+
+Record your own run: `cd scripts && npm i && node record_demo.mjs` (app on :3000).
+
 ## Architecture
 ```
 frontend (Next.js 15)  ->  /api proxy  ->  backend (FastAPI)

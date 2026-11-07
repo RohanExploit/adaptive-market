@@ -67,7 +67,8 @@ def morph(req: MorphRequest):
         return {**strategy.stateless(req.competitor), "recalled": 0, "tempr": {}}
     recalled = memory.recall(req.scenario_prompt, req.competitor)
     results = [r for r in recalled.get("results", []) if "content" in r]
-    out = strategy.adapted(req.competitor, req.scenario_prompt, results)
+    wide = [r for r in memory.recall("competitor pricing history, compliance and lost enterprise deals").get("results", []) if "content" in r]
+    out = strategy.adapted(req.competitor, req.scenario_prompt, results, wide)
     out["hindsight_reflection"] = memory.reflect(req.scenario_prompt) if results else None
     return {**out,
             "recalled": len(results), "tempr": recalled.get("tempr", {}),

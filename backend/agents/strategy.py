@@ -38,8 +38,9 @@ def stateless(competitor: str) -> Dict[str, Any]:
     }
 
 
-def adapted(competitor: str, scenario: str, recalled: List[Dict[str, Any]]) -> Dict[str, Any]:
-    text = " ".join(m.get("content", "") for m in recalled).lower()
+def adapted(competitor: str, scenario: str, recalled: List[Dict[str, Any]],
+            context: List[Dict[str, Any]] = ()) -> Dict[str, Any]:
+    text = " ".join(m.get("content", "") for m in list(recalled) + list(context)).lower()
     evidence = [m["headline"] for m in recalled if "headline" in m]
     weak_support = "support" in text or "outage" in text
     soc2 = "soc2" in text
