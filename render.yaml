@@ -1,0 +1,30 @@
+services:
+  # Backend API (FastAPI)
+  - type: web
+    name: adaptive-market-backend
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: HINDSIGHT_BASE_URL
+        value: https://api.hindsight.vectorize.io
+      - key: HINDSIGHT_API_KEY
+        sync: false
+      - key: HINDSIGHT_BANK_ID
+        value: adaptive-market-prod
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_PRIMARY_MODEL
+        value: openai/gpt-oss-120b
+      - key: GROQ_FAST_MODEL
+        value: openai/gpt-oss-20b
+
+  # Frontend Dashboard (Next.js 15)
+  - type: web
+    name: adaptive-market-frontend
+    env: node
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm run start -- -p $PORT
+    envVars:
+      - key: NODE_VERSION
+        value: 22.0.0
