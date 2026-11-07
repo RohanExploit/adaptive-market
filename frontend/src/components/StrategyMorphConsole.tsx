@@ -14,6 +14,9 @@ export function StrategyMorphConsole({ strategy }: { strategy: any }) {
         <div><dt className="text-slate-400">Objection script</dt><dd>{b.recommended_objection_script}</dd></div>
         <div><dt className="text-slate-400">Pricing</dt><dd>{b.pricing_guidance}</dd></div>
         <div><dt className="text-slate-400">Roadmap</dt><dd>{strategy.roadmap.map((r: any) => `${r.priority} ${r.item}`).join(" · ")}</dd></div>
+        {strategy.hindsight_reflection && (
+          <div><dt className="text-slate-400">Hindsight reflection</dt><dd className="whitespace-pre-wrap text-xs">{strategy.hindsight_reflection}</dd></div>
+        )}
         {b.historical_evidence_cited.length > 0 && (
           <div><dt className="text-slate-400">Evidence</dt><dd><ul className="list-disc pl-5">{b.historical_evidence_cited.map((e: string, i: number) => <li key={i}>{e}</li>)}</ul></dd></div>
         )}
