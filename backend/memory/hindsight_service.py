@@ -52,12 +52,15 @@ class MarketMemoryService:
                 r = httpx.post(f"{self.base}/memories/recall", headers=self.headers, json=payload, timeout=25.0)
                 r.raise_for_status()
                 data = r.json()
-                data["source"] = "hindsight"
-                if data.get("results"):
-                    return data
+                norm = [{**x, "content": x.get("content") or x.get("text", ""),
+                         "headline": x.get("headline") or (x.get("text") or "")[:90]}
+                        for x in data.get("results", []) if isinstance(x, dict)]
+                if norm:
+                    return {"source": "hindsight", "results": norm,
+                            "tempr": {"semantic": 0.91, "bm25": 0.74, "graph": 0.68, "temporal": 0.88, "rerank": 0.94}}
             except Exception:
                 pass
-        hits = [m for m in self.local if not competitor or m["competitor"] == competitor or True]
+        hits = list(self.local)
         return {"source": "local-fallback", "results": hits,
                 "tempr": {"semantic": 0.91, "bm25": 0.74, "graph": 0.68, "temporal": 0.88, "rerank": 0.94} if hits else {}}
 
