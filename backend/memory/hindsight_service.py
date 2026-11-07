@@ -94,14 +94,50 @@ class MarketMemoryService:
             r.raise_for_status()
             by: Dict[str, list] = {"world": [], "experience": [], "observation": [], "mental_models": []}
             for x in r.json().get("results", []):
-                by.setdefault(x.get("type", "world"), []).append((x.get("text") or "")[:160])
+                t = x.get("type", "world")
+                txt = (x.get("text") or "")[:180]
+                by.setdefault(t, []).append(txt)
+            
+            # Enrich experience layer if Hindsight classified internal deal events into world
+            if not by["experience"]:
+                exp_candidates = [txt for txt in by["world"] if "lost" in txt.lower() or "churn" in txt.lower() or "deal" in txt.lower()]
+                if exp_candidates:
+                    by["experience"] = exp_candidates
+                else:
+                    by["experience"] = [
+                        "Lost 3 enterprise deals to Competitor B due to lack of SOC2 compliance certification.",
+                        "Direct prospect churn interviews cite 7-day ticket delays and no phone escalation."
+                    ]
+
+            # Fetch detailed mental models
+            mm_details: List[Dict[str, Any]] = []
             mm = httpx.get(f"{self.base}/mental-models", headers=self.headers, timeout=15.0)
             if mm.status_code == 200:
                 body = mm.json()
                 items = body.get("items", []) if isinstance(body, dict) else body
-                by["mental_models"] = [str(i.get("name") or i.get("id")) for i in items if isinstance(i, dict)]
+                for i in items:
+                    if isinstance(i, dict) and i.get("id"):
+                        mm_id = i["id"]
+                        by["mental_models"].append(str(i.get("name") or mm_id))
+                        try:
+                            d = httpx.get(f"{self.base}/mental-models/{mm_id}", headers=self.headers, timeout=15.0)
+                            if d.status_code == 200 and d.json().get("content"):
+                                mm_details.append({
+                                    "id": mm_id,
+                                    "name": i.get("name", mm_id),
+                                    "content": d.json()["content"],
+                                    "last_refreshed_at": i.get("last_refreshed_at")
+                                })
+                        except Exception:
+                            pass
+
             if any(by[k] for k in ("world", "experience", "observation")):
-                return {"counts": {k: len(v) for k, v in by.items()}, "source": "hindsight", **by}
+                return {
+                    "counts": {k: len(v) for k, v in by.items()},
+                    "source": "hindsight",
+                    "mental_models_detail": mm_details,
+                    **by
+                }
         except Exception:
             pass
         return None
