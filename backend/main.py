@@ -75,6 +75,51 @@ def morph(req: MorphRequest):
             "memory_source": recalled.get("source")}
 
 
+@app.get("/api/signals/list")
+def list_signals():
+    return {
+        "signals": memory.local if memory.local else SEED_SIGNALS,
+        "is_seeded": len(memory.local) > 0,
+        "total_signals": len(memory.local) if memory.local else len(SEED_SIGNALS),
+    }
+
+
+@app.get("/api/competitors/benchmark")
+def competitor_benchmark():
+    return {
+        "our_product": {
+            "name": "AdaptiveMarket",
+            "tier": "Enterprise Strategy Cloud",
+            "price": "$49/mo (or $39/mo Starter Annual)",
+            "uptime_sla": "99.99% Enterprise SLA Guarantee",
+            "support": "Dedicated 24/7 Phone + Shared Slack Channel",
+            "compliance": "SOC2 Automation (Accelerated P0)",
+            "positioning": "Memory-First Self-Adapting Strategy Engine",
+            "moat": "Vectorize Hindsight 5-Layer Biomimetic Memory",
+        },
+        "competitor_a": {
+            "name": "Competitor A",
+            "tier": "Self-Serve Commodity",
+            "price": "$34/mo (Slashed 30% from $49) + Free Tier",
+            "uptime_sla": "99.1% (4 major outages in 6 weeks)",
+            "support": "Email ticket only (Week-long delays, high churn)",
+            "compliance": "Basic GDPR Only",
+            "positioning": "Lowest Price Leader",
+            "moat": "None (racing to the bottom, degrading infrastructure)",
+        },
+        "competitor_b": {
+            "name": "Competitor B",
+            "tier": "Legacy Enterprise Suite",
+            "price": "$69/mo (Raised after 60-day promo)",
+            "uptime_sla": "99.9% Historical SLA",
+            "support": "Business Hours Standard Support",
+            "compliance": "SOC2 Type II + Native Slack Integration",
+            "positioning": "Compliance-First Enterprise Standard",
+            "moat": "Enterprise certifications & 10 EMEA sales reps",
+        },
+    }
+
+
 @app.get("/api/memory/inspector")
 def inspector(bank_id: Optional[str] = None):
     return memory.inspect()
