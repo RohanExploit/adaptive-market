@@ -6,7 +6,17 @@
 [![Memory Engine](https://img.shields.io/badge/Memory-Vectorize%20Hindsight-00E599?style=for-the-badge&logo=redis)](https://hindsight.vectorize.io)
 [![Reasoning](https://img.shields.io/badge/Groq%20LPU-openai%2Fgpt--oss--120b-F55036?style=for-the-badge&logo=fastapi)](https://groq.com)
 [![Next.js 15](https://img.shields.io/badge/Frontend-Next.js%2015%20React%2019-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-adaptive--market--frontend.onrender.com-00E599?style=for-the-badge&logo=render)](https://adaptive-market-frontend.onrender.com)
+[![Live API](https://img.shields.io/badge/Live%20API-adaptive--market--backend.onrender.com-blue?style=for-the-badge&logo=fastapi)](https://adaptive-market-backend.onrender.com/docs)
 [![Deploy to Render](https://img.shields.io/badge/Deploy%20to-Render-46E3B7?style=for-the-badge&logo=render)](https://render.com/deploy?repo=https://github.com/RohanExploit/adaptive-market)
+
+---
+
+## 🌐 Live Cloud Deployment Links
+- 🖥️ **Live Web App Dashboard:** [https://adaptive-market-frontend.onrender.com](https://adaptive-market-frontend.onrender.com)
+- ⚡ **Live Interactive Swagger API Docs:** [https://adaptive-market-backend.onrender.com/docs](https://adaptive-market-backend.onrender.com/docs)
+- 🧠 **Memory Bank:** Active on Vectorize Hindsight Cloud (`adaptive-market-prod`)
+- 🚀 **Reasoning Engine:** Active on Groq LPU (`openai/gpt-oss-120b` MoE)
 
 ---
 

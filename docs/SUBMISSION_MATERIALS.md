@@ -3,6 +3,8 @@
 Everything you need to submit your project to the hackathon portal, Devpost, Dev.to/Medium, Reddit, and LinkedIn/X.
 
 - **GitHub Repository:** [https://github.com/RohanExploit/adaptive-market](https://github.com/RohanExploit/adaptive-market)
+- **Live Web App Dashboard:** [https://adaptive-market-frontend.onrender.com](https://adaptive-market-frontend.onrender.com)
+- **Live Interactive API Docs (Swagger):** [https://adaptive-market-backend.onrender.com/docs](https://adaptive-market-backend.onrender.com/docs)
 - **Demo Video (1080p WebM):** `docs/demo/demo-recording.webm` (Inside repository)
 
 ---
