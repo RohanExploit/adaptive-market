@@ -1,0 +1,8 @@
+.env
+.secrets.local.txt
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+.next/
+*.log

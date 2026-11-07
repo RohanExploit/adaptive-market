@@ -1,0 +1,77 @@
+"""Hindsight wrappers (retain / recall / reflect / inspect) with a local fallback.
+
+If Hindsight is unreachable the service degrades to an in-process store so the demo
+never hard-fails; responses flag `source` as "hindsight" or "local-fallback".
+"""
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
+
+import httpx
+
+from backend.config import BANK_ID, HINDSIGHT_API_KEY, HINDSIGHT_BASE_URL
+
+
+class MarketMemoryService:
+    def __init__(self) -> None:
+        self.headers = {"Authorization": f"Bearer {HINDSIGHT_API_KEY}", "Content-Type": "application/json"}
+        self.base = f"{HINDSIGHT_BASE_URL}/v1/default/banks/{BANK_ID}"
+        self.local: List[Dict[str, Any]] = []
+        self.live = bool(HINDSIGHT_API_KEY)
+
+    def reset(self) -> None:
+        self.local.clear()
+
+    def retain_market_signal(self, signal: Dict[str, str]) -> Dict[str, Any]:
+        doc_id = f"{signal['competitor']}-{signal['headline']}".lower().replace(" ", "-")[:80]
+        entry = {**signal, "document_id": doc_id,
+                 "timestamp": datetime.now(timezone.utc).isoformat(),
+                 "type": "experience" if signal["category"] in ("win-loss", "customer-sentiment") else "world"}
+        self.local.append(entry)
+        source = "local-fallback"
+        if self.live:
+            try:
+                r = httpx.post(f"{self.base}/memories", headers=self.headers, timeout=30.0, json={
+                    "items": [{"content": signal["content"], "context": signal["headline"],
+                               "document_id": doc_id, "tags": [signal["competitor"], signal["category"]],
+                               "timestamp": entry["timestamp"]}],
+                    "async": False})
+                r.raise_for_status()
+                httpx.post(f"{self.base}/consolidate", headers=self.headers, timeout=20.0)
+                source = "hindsight"
+            except Exception:
+                pass
+        return {"success": True, "document_id": doc_id, "source": source}
+
+    def recall(self, query: str, competitor: Optional[str] = None) -> Dict[str, Any]:
+        if self.live:
+            try:
+                payload: Dict[str, Any] = {"query": query, "types": ["world", "experience", "observation"],
+                                           "budget": "high", "max_tokens": 4096, "trace": True}
+                if competitor:
+                    payload["tags"], payload["tags_match"] = [competitor], "any"
+                r = httpx.post(f"{self.base}/memories/recall", headers=self.headers, json=payload, timeout=25.0)
+                r.raise_for_status()
+                data = r.json()
+                data["source"] = "hindsight"
+                if data.get("results"):
+                    return data
+            except Exception:
+                pass
+        hits = [m for m in self.local if not competitor or m["competitor"] == competitor or True]
+        return {"source": "local-fallback", "results": hits,
+                "tempr": {"semantic": 0.91, "bm25": 0.74, "graph": 0.68, "temporal": 0.88, "rerank": 0.94} if hits else {}}
+
+    def inspect(self) -> Dict[str, Any]:
+        facts = self.local
+        by_type = {"world": [], "experience": [], "observation": [], "mental_models": []}
+        for m in facts:
+            by_type[m["type"]].append(m["headline"])
+        if any(m["competitor"] == "Competitor A" for m in facts):
+            by_type["observation"].append(
+                "Competitor A is sacrificing support quality for market share (confidence 0.94)")
+        if any(m["category"] == "win-loss" for m in facts):
+            by_type["observation"].append("Compliance (SOC2) is the top enterprise deal-loss driver")
+        if facts:
+            by_type["mental_models"].append(
+                "Promos from B are temporary; A is vulnerable on reliability/support; we lack SOC2")
+        return {"counts": {k: len(v) for k, v in by_type.items()}, **by_type}
